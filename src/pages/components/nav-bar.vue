@@ -11,8 +11,8 @@
   </view>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref } from 'vue';
+<script setup lang="ts">
+import { ref } from 'vue';
 // 自定义导航栏高度总和
 let height = ref(0);
 // 微信小程序胶囊布局位置信息
@@ -48,29 +48,21 @@ const back = () => {
     delta: 1, //返回层数，2则上上页
   });
 };
-export default defineComponent({
-  name: 'NavBarComponent',
-  props: {
-    title: {
-      type: String,
-      default: '',
-    },
-    backIcon: {
-      type: Boolean,
-      default: false,
-    },
-    backParam: {
-      type: String,
-      default: '',
-    },
-  },
-  data() {
-    return {
-      height,
-      back,
-    };
-  },
-});
+/**
+ * TS写法，如果需要设置默认值，需要在外层包装withDefaults函数，接受两个参数，全是对象，设置默认值的时候，如果是一个复杂的对象，
+ * 则需要列举出它的所有键值对，并将结果返回才行
+ */
+withDefaults(
+  defineProps<{
+    title: string;
+    backIcon?: boolean;
+    backParam?: string;
+  }>(),
+  {
+    title: 'Default message',
+    backIcon: false,
+  }
+);
 </script>
 
 <style scoped lang="scss">

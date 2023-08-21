@@ -21,21 +21,28 @@
       }
     },
     {
-      "path": "pages/chat-channels/chat-channels",
-      "style": {
-        "navigationBarTitleText": "频道"
-      }
-    },
-    {
       "path": "pages/user/user",
       "style": {
         "navigationBarTitleText": "我的"
       }
     },
     {
-      "path": "pages/user/updata-log",
+      "path": "pages/user/update-log",
       "style": {
         "navigationBarTitleText": "更新日志"
+      }
+    },
+    // 以下是聊天频道路由
+    {
+      "path": "pages/chat-channels/chat-base",
+      "style": {
+        "navigationBarTitleText": "频道"
+      }
+    },
+    {
+      "path": "pages/chat-channels/chat-channels-list",
+      "style": {
+        "navigationBarTitleText": "频道列表"
       }
     }
   ],
@@ -53,7 +60,7 @@
       },
       {
         "text": "频道",
-        "pagePath": "pages/chat-channels/chat-channels",
+        "pagePath": "pages/chat-channels/chat-channels-list",
         "iconPath": "/static/tabBar/聊天.png",
         "selectedIconPath": "/static/tabBar/聊天_选中.png"
       },
