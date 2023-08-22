@@ -10,9 +10,9 @@ onLaunch(() => {
   let tokenInfo = uni.getStorageSync('tokenInfo');
   let hasValidToken = false;
   if (tokenInfo) {
-    let time = new Date().valueOf();
+    let time = new Date().getTime();
     // 存储时间小于token失效时间，才是有效token, 否则重新授权
-    hasValidToken = time - tokenInfo.timestamp < 3600 * 24 * 1000;
+    hasValidToken = time - tokenInfo.date < tokenInfo.userInfo.token.tokenTimeout;
   }
   if (!hasValidToken) {
     // 调用小程序登录api
@@ -22,16 +22,12 @@ onLaunch(() => {
         console.log('wxInfo', wxInfo);
         // 获取到code后，提交给服务端
         await wxCodeAuthorization({ code: wxInfo.code }).then((res: WxAuthResponse) => {
-          console.log('res', res);
-
+          console.log('App res', res);
           // 存储获取到的token
-          // uni.setStorage({
-          //   key: 'tokenInfo',
-          //   data: {
-          //     token: res.token,
-          //     timestamp: new Date().valueOf(),
-          //   },
-          // });
+          uni.setStorage({
+            key: 'tokenInfo',
+            data: res,
+          });
         });
       },
     });

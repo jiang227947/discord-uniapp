@@ -1,6 +1,7 @@
-import { getStorageSync, clearStorageSync, useRouter, toast } from '@/utils';
+import { getStorageSync, toast } from '@/utils';
 import RequestManager from './requestManager';
 import type { Result } from '@/shared/interface/result';
+import { ResultCodeEnum } from '@/shared/enum/http.enum';
 
 const manager = new RequestManager();
 
@@ -28,10 +29,14 @@ const baseRequest = async (url: string, method: string | any, data: object = {},
       },
       success: (successData: any) => {
         const result: Result<any> = successData.data;
-        if (result.code == 200) {
-          // 业务逻辑
+        if (result.code == ResultCodeEnum.success) {
+          // 服务器请求成功，结果正确
           reslove(result.data);
-        } else {
+        } else if (result.code == ResultCodeEnum.complete) {
+          // 服务器请求成功，结果错误
+          reslove(result.data);
+        } else if (result.code == ResultCodeEnum.fail) {
+          // 服务器请求失败或代码错误
           toast(result.msg);
           reject(result);
         }

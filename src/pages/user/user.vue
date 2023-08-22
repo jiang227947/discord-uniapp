@@ -3,13 +3,13 @@
     <NavBarComponent :title="title"></NavBarComponent>
     <view class="user-card bgc1">
       <view class="user-info">
-        <image src="../../static/20230815221417.jpg" mode="scaleToFill" class="avatar"></image>
+        <image :src="tokenInfo ? tokenInfo.userInfo.avatar : '../../static/avatar.jpg'" mode="scaleToFill" class="avatar"></image>
         <view class="user-name">
-          <text>来回三五七</text>
-          <text class="phone">17671612595</text>
+          <text>{{ tokenInfo ? tokenInfo.userInfo.name : '请登录' }}</text>
+          <text class="phone">{{ userInfo.phone }}</text>
         </view>
       </view>
-      <view class="update">修改信息</view>
+      <view class="update" @click="userOperate()">{{ tokenInfo ? '修改信息' : '点击登录' }}</view>
     </view>
     <view class="user-data bgc1">
       <uni-section title="表单校验" type="line">
@@ -47,9 +47,15 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import NavBarComponent from '../components/nav-bar.vue';
-import { loginPost } from '../../core/api-service/api/login';
+import { loginPost, wxCodeAuthorization } from '../../core/api-service/api/login';
+import type { WxAuthResponse } from '@/shared/interface/user';
 
 const title = ref('我的');
+let userInfo = uni.getStorageSync('userInfo');
+let tokenInfo = uni.getStorageSync('tokenInfo');
+console.log('tokenInfo', tokenInfo);
+console.log('userInfo', userInfo);
+
 const toPage = (path: string) => {
   console.log(path);
   uni.navigateTo({ url: path });
@@ -83,7 +89,51 @@ const valiFormData = {
   userName: '',
   password: '',
 };
-
+// 用户栏右侧按钮
+const userOperate = () => {
+  if (userInfo) {
+    // todo 修改用户
+  } else {
+    // 点击登录
+    getUserInfo();
+  }
+};
+// 获取用户信息
+const getUserInfo = async () => {
+  const res = await uni.getUserProfile({
+    desc: '获取您的用户信息用于登录',
+  });
+  userInfo = {
+    ...res.userInfo,
+    timestamp: new Date().valueOf(),
+  };
+  // 存储获取到的token
+  uni.setStorage({
+    key: 'userInfo',
+    data: userInfo,
+  });
+  console.log('获取用户加密的信息', res);
+  // 调用小程序登录api
+  uni.login({
+    provider: 'weixin',
+    success: async (wxInfo) => {
+      console.log('wxInfo', wxInfo);
+      // 获取到code后，提交给服务端
+      await wxCodeAuthorization({
+        code: wxInfo.code,
+        avatar: userInfo.avatarUrl,
+        name: userInfo.nickName,
+      }).then((res: WxAuthResponse) => {
+        console.log('User res', res);
+        // 存储获取到的token
+        uni.setStorage({
+          key: 'tokenInfo',
+          data: res,
+        });
+      });
+    },
+  });
+};
 // 提交登录
 const submit = async () => {
   let res = await loginPost(valiFormData);
