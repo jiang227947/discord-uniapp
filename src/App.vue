@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onLaunch, onShow, onHide } from '@dcloudio/uni-app';
 import routingIntercept from './core/interceptor/route';
-import { wxCodeAuthorization } from './core/api-service/api/login';
+import { wxCodeAuthorization } from './core/api-service/api/login.api';
 import type { WxAuthResponse } from './shared/interface/user';
 onLaunch(() => {
   // console.log("App Launch");

@@ -13,11 +13,24 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import NavBarComponent from '../components/nav-bar.vue';
+import { queryChannel } from '../../core/api-service/api/chat.api';
+import { onLaunch } from '@dcloudio/uni-app';
+
+const tokenInfo = uni.getStorageSync('tokenInfo');
 const title = ref('频道');
 
 const onClick = (evt: any, params: any) => {
   console.log(evt);
 };
+// 查询聊天频道
+const queryChannelList = async (id: string) => {
+  return await queryChannel(id);
+};
+onLaunch(() => {
+  if (tokenInfo) {
+    queryChannelList('1').then((result) => {});
+  }
+});
 </script>
 
 <style scoped lang="scss">

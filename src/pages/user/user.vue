@@ -47,7 +47,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import NavBarComponent from '../components/nav-bar.vue';
-import { loginPost, wxCodeAuthorization } from '../../core/api-service/api/login';
+import { loginPost, wxCodeAuthorization } from '../../core/api-service/api/login.api';
 import type { WxAuthResponse } from '@/shared/interface/user';
 
 const title = ref('我的');
