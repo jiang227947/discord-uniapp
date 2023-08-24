@@ -1,8 +1,4 @@
-import {
-  ChatChannelsMessageStatesEnum, ChatChannelsMessageTypeEnum,
-  ChatMessagesTypeEnum, SystemMessagesEnum
-} from '../enum/chat-channels.enum';
-
+import type { ChatChannelsMessageTypeEnum, SystemMessagesEnum, ChatMessagesTypeEnum } from '../enum/chat-channels.enum';
 
 /**
  * 聊天频道订阅接口
@@ -12,6 +8,40 @@ export interface ChatChannelSubscribeInterface {
   msg: ChatChannelRoomInterface | ChatChannelSystemStatesUserInterface | any;
 }
 
+/**
+ * 聊天频道的参数接口
+ */
+export interface ChatChannelInterface {
+  id: string;
+  // 频道ID
+  channelId?: string;
+  // 头像
+  avatar: string;
+  // 名称
+  channelName: string;
+  // 标签
+  tags: string | string[];
+  // 频道人员
+  personnel: string;
+  // 管理员
+  admins: string | number[];
+  // 是否私密
+  isPrivacy: number | boolean;
+  // 密码
+  password: string;
+  // 公告
+  announcement: string;
+  // 备注
+  remark: string;
+  // 最后一条消息发送人
+  lastMessageUser: string;
+  // 最后一条消息
+  lastMessage: string;
+  // 最后一条消息时间
+  lastMessageTime: string;
+  // 创建时间
+  created: string;
+}
 /**
  * 聊天频道聊天频道房间接口
  */
@@ -86,9 +116,9 @@ export interface ChatMessagesInterface {
   edited_timestamp: string;
   // 反应
   reaction: {
-    emoji: string,
-    count: number,
-    user: number[]
+    emoji: string;
+    count: number;
+    user: number[];
   }[];
   // 标志
   flags: number;
@@ -111,7 +141,7 @@ export interface ChatMessagesInterface {
   // 系统消息类型枚举
   systemStates?: SystemMessagesEnum;
   // 消息发送状态
-  states?: ChatChannelsMessageStatesEnum;
+  states?: ChatMessagesTypeEnum;
 }
 
 /**
@@ -171,9 +201,9 @@ export interface ChatOperateInterface {
  */
 export class ChatMessagesModal {
   // 附件
-  attachments: any[];
+  attachments: any[] = [];
   // 作者
-  author: {
+  author!: {
     // 头像
     avatar: string;
     // 头像描述
@@ -190,37 +220,39 @@ export class ChatMessagesModal {
     username: string;
   };
   // 频道id
-  channel_id: string;
+  channel_id!: string;
   // 组件
-  components: any[];
+  components: any[] = [];
   // 消息内容
-  content: string;
+  content!: string;
   // 编辑消息的时间
-  edited_timestamp: string;
+  edited_timestamp!: string;
   // 反应
-  reaction: any[];
+  reaction: any[] = [];
   // 标志
-  flags: number;
+  flags!: number;
   // 提及的人
-  mention_everyone: boolean;
+  mention_everyone: boolean = false;
   // 提及的人名称信息
-  mentions: ChatChannelRoomUserInterface;
+  mentions!: ChatChannelRoomUserInterface;
   // 留言参考
-  messageReference: any[];
+  messageReference: any[] = [];
   // 引用消息
-  referencedMessage: any[];
+  referencedMessage: any[] = [];
   // 固定
-  pinned: boolean;
+  pinned: boolean = false;
   // 时间
-  timestamp: string;
+  timestamp!: string;
   // 文本转语音
-  tts: boolean;
+  tts: boolean = false;
   // 消息类型 用于前端展示判断
-  type: ChatMessagesTypeEnum;
+  type: ChatMessagesTypeEnum = 0;
   // 系统消息类型枚举
   systemStates?: SystemMessagesEnum;
   // 消息发送状态
-  states?: ChatChannelsMessageStatesEnum;
+  states?: ChatMessagesTypeEnum;
+
+  constructor() {}
 }
 
 /**
@@ -263,4 +295,16 @@ export interface ChatAttachmentsInterface {
   fileType: string;
   // 时间
   date: number;
+}
+
+/**
+ * 消息类型接口
+ */
+export interface ChatMessageTypeInterface{
+  // 一般消息
+  general: number;
+  // 连续消息
+  continuous: number;
+  // 系统消息
+  system: number;
 }

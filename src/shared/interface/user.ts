@@ -3,7 +3,7 @@ import type { UserRoleEnum } from '../enum/user.enum';
 import type { Token } from './token';
 
 export interface User {
-  id: number; // id
+  id: string; // id
   name: string; // 登录名
   userName: string; // 用户名
   email: string; // 邮箱

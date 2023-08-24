@@ -132,3 +132,16 @@ export function saveImage(filePath: string) {
  * @param {Object} data
  **/
 export const clone = (data: string) => JSON.parse(JSON.stringify(data));
+
+/**
+ * 头像地址转换
+ * @param url 地址
+ * @returns 返回地址
+ */
+export const transform = (url: string) => {
+  if (url && url.indexOf('http' || 'https') !== -1) {
+    return url;
+  } else if (url !== null && url !== undefined) {
+    return `https://www.evziyi.top${url}`;
+  }
+};

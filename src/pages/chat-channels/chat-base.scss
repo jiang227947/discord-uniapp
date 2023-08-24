@@ -1,0 +1,56 @@
+@import '../../shared/style.scss';
+
+// 最外层
+.messagesWrapper {
+  overflow-y: scroll;
+  overflow-x: hidden;
+  position: absolute;
+  top: 60px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+
+  // 消息列
+  .scrollerInner {
+    min-height: 0;
+    overflow: hidden;
+    list-style: none;
+
+    /*每一条消息*/
+    .messageListItem {
+      outline: none;
+      position: relative;
+
+      &:hover {
+        background-color: $--li-hover;
+        transition: background-color 0.15s;
+
+        .reactionHidden {
+          display: flex !important;
+          transition: all 0.2s;
+        }
+      }
+    }
+  }
+}
+
+// 头像
+.user-avatar {
+  position: absolute;
+  left: 16px;
+  margin-top: calc(4px - 0.125rem);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-box-flex: 0;
+  -ms-flex: 0 0 auto;
+  flex: 0 0 auto;
+  z-index: 1;
+  pointer-events: auto;
+}

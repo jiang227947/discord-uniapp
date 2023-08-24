@@ -3,9 +3,9 @@
     <NavBarComponent :title="title"></NavBarComponent>
     <view class="user-card bgc1">
       <view class="user-info">
-        <image :src="tokenInfo ? tokenInfo.userInfo.avatar : '../../static/avatar.jpg'" mode="scaleToFill" class="avatar"></image>
+        <image :src="userInfo ? userInfo.avatar : '../../static/avatar.jpg'" mode="scaleToFill" class="avatar"></image>
         <view class="user-name">
-          <text>{{ tokenInfo ? tokenInfo.userInfo.name : '请登录' }}</text>
+          <text>{{ userInfo ? userInfo.name : '请登录' }}</text>
           <text class="phone">{{ userInfo.phone }}</text>
         </view>
       </view>
@@ -48,7 +48,7 @@
 import { ref } from 'vue';
 import NavBarComponent from '../components/nav-bar.vue';
 import { loginPost, wxCodeAuthorization } from '../../core/api-service/api/login.api';
-import type { WxAuthResponse } from '@/shared/interface/user';
+import type { OauthInterface } from '@/shared/interface/user';
 
 const title = ref('我的');
 let userInfo = uni.getStorageSync('userInfo');
@@ -123,8 +123,8 @@ const getUserInfo = async () => {
         code: wxInfo.code,
         avatar: userInfo.avatarUrl,
         name: userInfo.nickName,
-      }).then((res: WxAuthResponse) => {
-        console.log('User res', res);
+      }).then((res: OauthInterface) => {
+        console.log('User res', res.userInfo.token);
         // 存储获取到的token
         uni.setStorage({
           key: 'tokenInfo',

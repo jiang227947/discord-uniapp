@@ -42,7 +42,8 @@
     {
       "path": "pages/chat-channels/chat-channels-list",
       "style": {
-        "navigationBarTitleText": "频道列表"
+        "navigationBarTitleText": "频道列表",
+        "enablePullDownRefresh": true
       }
     }
   ],

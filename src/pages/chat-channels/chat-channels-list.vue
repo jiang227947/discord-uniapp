@@ -3,34 +3,80 @@
     <NavBarComponent :title="title"></NavBarComponent>
     <uni-list>
       <uni-list :border="true">
-        <!-- 头像显示圆点 -->
-        <uni-list-chat title="uni-app" avatar="https://qiniu-web-assets.dcloud.net.cn/unidoc/zh/unicloudlogo.png" note="您收到一条新的消息" time="2020-02-02 20:20" badge-positon="left" badge-text="dot"></uni-list-chat>
+        <uni-list-chat
+          v-for="(item, index) in channelList"
+          :key="index"
+          :title="item.channelName"
+          :avatar="transform(item.avatar)"
+          :note="item.lastMessageUser + ':' + item.lastMessage"
+          :time="item.lastMessageTime"
+          clickable
+          @click="selectClick(item)"
+          badge-positon="left"
+        >
+        </uni-list-chat>
       </uni-list>
     </uni-list>
   </view>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, type Ref } from 'vue';
 import NavBarComponent from '../components/nav-bar.vue';
 import { queryChannel } from '../../core/api-service/api/chat.api';
-import { onLaunch } from '@dcloudio/uni-app';
+import type { User } from '@/shared/interface/user';
+import type { Token } from '@/shared/interface/token';
+import { getStorageSync, transform } from '@/utils';
+import type { ChatChannelInterface } from '@/shared/interface/chat-channels';
+import { CommonUtil } from '@/utils/commonUtil';
+import { onPullDownRefresh, onShow } from '@dcloudio/uni-app';
 
-const tokenInfo = uni.getStorageSync('tokenInfo');
+const tokenInfo: Token = getStorageSync('tokenInfo');
+const userInfo: User = getStorageSync('userInfo');
 const title = ref('频道');
-
-const onClick = (evt: any, params: any) => {
-  console.log(evt);
-};
-// 查询聊天频道
-const queryChannelList = async (id: string) => {
-  return await queryChannel(id);
-};
-onLaunch(() => {
-  if (tokenInfo) {
-    queryChannelList('1').then((result) => {});
-  }
+const channelList: Ref<ChatChannelInterface[]> = ref([]);
+// 下拉刷新
+onPullDownRefresh(() => {
+  // 请求查询聊天频道
+  queryChannelList(userInfo.id, true);
 });
+// 当返回列表时重新查询
+onShow(() => {
+  // 请求查询聊天频道
+  queryChannelList(userInfo.id);
+});
+/**
+ * 查询聊天频道
+ * @param id 用户id
+ * @param isRefresh 是否为刷新获取
+ */
+const queryChannelList = async (id: string, isRefresh?: boolean) => {
+  await queryChannel(id).then((result: ChatChannelInterface[]) => {
+    if (result) {
+      channelList.value = result.map((item) => {
+        item.lastMessageTime = CommonUtil.dateFmt(
+          'yyyy/MM/dd hh:mm:ss',
+          new Date(item.lastMessageTime)
+        );
+        return item;
+      });
+    }
+    if (isRefresh) {
+      // 停止下拉刷新动画
+      uni.stopPullDownRefresh();
+    }
+  });
+};
+if (tokenInfo) {
+  queryChannelList(userInfo.id);
+}
+// 点击进入频道
+const selectClick = (channel: ChatChannelInterface) => {
+  console.log(channel);
+  uni.navigateTo({
+    url: `chat-base?id=${channel.id}&channelId=${channel.channelId}&name=${channel.channelName}`,
+  });
+};
 </script>
 
 <style scoped lang="scss">

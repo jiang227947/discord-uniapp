@@ -2,6 +2,8 @@ import { getStorageSync, toast } from '@/utils';
 import RequestManager from './requestManager';
 import type { Result } from '@/shared/interface/result';
 import { ResultCodeEnum } from '@/shared/enum/http.enum';
+import type { Token } from '@/shared/interface/token';
+import type { User } from '@/shared/interface/user';
 
 const manager = new RequestManager();
 
@@ -11,9 +13,16 @@ const baseRequest = async (url: string, method: string | any, data: object = {},
     console.log('重复请求');
   }
   if (!requestId) return false;
-
+  const tokenInfo: Token = getStorageSync('tokenInfo');
+  const userInfo: User = getStorageSync('userInfo');
+  // 设置请求头
   const header: any = {};
-  header.token = getStorageSync('token') || '';
+  if (userInfo) {
+    header.userId = userInfo.id;
+  }
+  if (tokenInfo) {
+    header[tokenInfo.tokenName] = `Bearer ${tokenInfo.tokenValue}`;
+  }
   return new Promise((reslove, reject) => {
     loading && uni.showLoading({ title: 'loading' });
     uni.request({
