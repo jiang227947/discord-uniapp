@@ -1,4 +1,8 @@
-import type { ChatChannelsMessageTypeEnum, SystemMessagesEnum, ChatMessagesTypeEnum } from '../enum/chat-channels.enum';
+import type {
+  ChatChannelsMessageTypeEnum,
+  SystemMessagesEnum,
+  ChatMessagesTypeEnum,
+} from '../enum/chat-channels.enum';
 
 /**
  * 聊天频道订阅接口
@@ -102,6 +106,7 @@ export interface ChatChannelSystemStatesUserInterface {
  * 消息接口
  */
 export interface ChatMessagesInterface {
+  id: string;
   // 附件
   attachments: ChatAttachmentsInterface | string;
   // 作者
@@ -300,7 +305,7 @@ export interface ChatAttachmentsInterface {
 /**
  * 消息类型接口
  */
-export interface ChatMessageTypeInterface{
+export interface ChatMessageTypeInterface {
   // 一般消息
   general: number;
   // 连续消息

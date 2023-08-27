@@ -50,4 +50,10 @@ onHide(() => {
 <style>
 /**全局引入iconfont */
 @import './static/iconfont/iconfont.css';
+@font-face {
+  font-family: 'iconfont'; /* Project id 3355581 */
+  src: url('./static/iconfont/iconfont.woff2') format('woff2'),
+    url('./static/iconfont/iconfont.woff') format('woff'),
+    url('./static/iconfont/iconfont.ttf') format('truetype');
+}
 </style>

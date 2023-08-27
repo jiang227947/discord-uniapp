@@ -1,7 +1,7 @@
 <template>
   <view class="chat-list">
     <NavBarComponent :title="title"></NavBarComponent>
-    <uni-list>
+    <uni-list v-if="channelList.length > 0">
       <uni-list :border="true">
         <uni-list-chat
           v-for="(item, index) in channelList"
