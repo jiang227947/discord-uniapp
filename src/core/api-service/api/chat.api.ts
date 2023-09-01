@@ -3,10 +3,12 @@ import type { CreateChannelParamInterface } from '@/shared/interface/chat-channe
 import request from '../request';
 
 // 查询聊天记录
-const queryChatMessage = (data: { channelId: string; pageNum: number; pageSize: number }) => request.post('/queryChatMessage', data);
+const queryChatMessage = (data: { channelId: string; pageNum: number; pageSize: number }) =>
+  request.post('/queryChatMessage', data);
 
 // 添加反应表情
-const addReaction = (data: { emoji: string; id: number; userId: number }) => request.post('/addReaction', data);
+const addReaction = (data: { emoji: string; id: number; userId: number }) =>
+  request.post('/addReaction', data);
 
 // 上传头像
 const uploadAvatar = (data: { formData: FormData }) => request.post('/uploadAvatar', data);
@@ -28,6 +30,35 @@ const queryChannel = (id: string) => request.get('/queryChannel', { id });
 const deleteChannel = (data: { channelId: string }) => request.post('/deleteChannel', data);
 
 // 加入频道
-const joinChannel = (data: { channelId: string; password: string }) => request.post('/joinChannel', data);
+const joinChannel = (data: { channelId: string; password: string }) =>
+  request.post('/joinChannel', data);
 
-export { queryChatMessage, addReaction, uploadAvatar, attachmentsUpload, createChannel, queryChannel, deleteChannel, joinChannel };
+// 获取文件元数据
+const getFileData = (path: string) => {
+  return new Promise((reslove, reject) => {
+    uni.request({
+      url: path,
+      method: 'GET',
+      responseType: 'text',
+      timeout: 10000,
+      success: (res) => {
+        reslove(res.data);
+      },
+      fail: () => {
+        reject('');
+      },
+    });
+  });
+};
+
+export {
+  queryChatMessage,
+  addReaction,
+  uploadAvatar,
+  attachmentsUpload,
+  createChannel,
+  queryChannel,
+  deleteChannel,
+  joinChannel,
+  getFileData,
+};

@@ -72,7 +72,7 @@ if (tokenInfo) {
 }
 // 点击进入频道
 const selectClick = (channel: ChatChannelInterface) => {
-  console.log(channel);
+  // console.log(channel);
   uni.navigateTo({
     url: `chat-base?id=${channel.id}&channelId=${channel.channelId}&name=${channel.channelName}`,
   });

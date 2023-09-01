@@ -69,10 +69,10 @@
                     <!--消息内容-->
                     <view class="markupMessage">
                       <!--附件消息-->
-                      <!-- <app-chat-attachments
-                  *ngIf="item.attachments"
-                  [attachments]="item.attachments"
-                ></app-chat-attachments> -->
+                      <ChatAttachments
+                        :attachments="item.attachments"
+                        v-if="item.attachments"
+                      ></ChatAttachments>
                       <!--文字消息-->
                       <span v-if="!item.attachments">{{ item.content }}</span>
                     </view>
@@ -117,10 +117,10 @@
                   <!--文字消息-->
                   <view class="markupMessage">
                     <!--附件消息-->
-                    <!-- <app-chat-attachments
-                  *ngIf="item.attachments"
-                  [attachments]="item.attachments"
-                ></app-chat-attachments> -->
+                    <ChatAttachments
+                      :attachments="item.attachments"
+                      v-if="item.attachments"
+                    ></ChatAttachments>
                     <!--文字消息-->
                     <span v-if="!item.attachments">{{ item.content }}</span>
                   </view>
@@ -200,7 +200,7 @@
           </view>
           <!--发送按钮-->
           <view class="buttonArea">
-            <button type="submit" class="send-button" title="send">
+            <button type="submit" class="send-button" title="send" @click="send()">
               <i class="iconfont icon-fasong"></i>
             </button>
           </view>
@@ -213,24 +213,32 @@
 <script setup lang="ts">
 import { ref, type Ref, reactive } from 'vue';
 import NavBarComponent from '../components/nav-bar.vue';
-import { onLoad, onPageScroll } from '@dcloudio/uni-app';
-import { queryChatMessage } from '@/core/api-service/api/chat.api';
+import { onLoad, onPageScroll, onUnload } from '@dcloudio/uni-app';
+import { getFileData, queryChatMessage } from '@/core/api-service/api/chat.api';
 import type {
+  ChatAttachmentsInterface,
   ChatMessageTypeInterface,
   ChatMessagesInterface,
 } from '@/shared/interface/chat-channels';
 import { PageParams } from '@/shared/model/pageParms';
-import { ChatMessagesTypeEnum } from '@/shared/enum/chat-channels.enum';
+import {
+  ChatChannelsMessageTypeEnum,
+  ChatMessagesTypeEnum,
+} from '@/shared/enum/chat-channels.enum';
 import { onMounted } from 'vue';
 import ZPaging from '../../uni_modules/z-paging/components/z-paging/z-paging.vue';
+import ChatAttachments from './chat-attachments.vue';
+import { IMAGE_TYPE_CONST, MEDIA_TYPE_CONST, TEXT_TYPE_CONST } from '@/shared/const/commou.const';
+import { CommonUtil } from '@/utils/commonUtil';
+import { MessageEmitterService } from '@/shared/service/Message.service';
+import type { Emitter } from 'mitt';
+import { SocketIoService } from '@/core/service/socketIoService';
+// @ts-ignore
+import io from '@hyoga/uni-socket.io';
+import type { Socket } from 'socket.io-client';
+
 // 标题
 const title: Ref<string> = ref('');
-// 滚动条位置
-const scrollTopPosition: Ref<number> = ref(0);
-// 最后一条子元素id
-const scrollView: Ref<string> = ref('');
-// 第一条子元素id
-const firstScrollView: Ref<string> = ref('');
 // 分页参数
 const pageParams: PageParams = new PageParams(1, 40);
 // 频道信息
@@ -250,13 +258,32 @@ const recoverChat: { recover: boolean; txt: string; form: any } = reactive({
   txt: '',
   form: null,
 });
-onLoad((option: any) => {
+// 订阅流
+let messageEmitter: Emitter<any>;
+// socket.io
+let socketIo: Socket;
+
+onLoad(async (option: any) => {
   console.log('option', option);
   title.value = option.name;
   channelInfo.channelId = option.channelId;
 });
 onMounted(() => {
-  // queryChatMsg(channelInfo.channelId, pageParams.pageNum, pageParams.pageSize);
+  if (!messageEmitter) {
+    messageEmitter = new MessageEmitterService().messagesEmitter;
+  }
+  if (!socketIo) {
+    console.log(io);
+    
+    io(`ws://127.0.0.1:3011/`);
+    // const $socketIo = new SocketIoService(channelInfo.channelId);
+    // console.log('socketIo', $socketIo);
+    // $socketIo.connect();
+    // socketIo = $socketIo.socketIo;
+  }
+});
+onUnload(() => {
+  console.log('onUnload');
 });
 onPageScroll(async (e: any) => {
   //如果滚动到顶部，触发加载更多聊天记录
@@ -265,6 +292,19 @@ onPageScroll(async (e: any) => {
     // queryChatMsg(channelInfo.channelId, pageParams.pageNum, pageParams.pageSize);
   }
 });
+
+/**
+ * 发送消息
+ */
+const send = () => {
+  // 判断空字符 判断未进入房间禁止发消息
+  if (textValue.value === '' && !channelInfo.channelId) {
+    return;
+  }
+  socketIo.emit(ChatChannelsMessageTypeEnum.publicMessage, {}, (response: any) => {
+    console.log(response);
+  });
+};
 
 /**
  * 查询聊天记录
@@ -280,8 +320,19 @@ const queryChatMsg = async (channelId: string, pageNum: number, pageSize: number
   };
   await queryChatMessage(params).then((result: ChatMessagesInterface[]) => {
     if (result) {
+      // 附件格式转换
+      const res = result.map((itm: ChatMessagesInterface) => {
+        if (itm.attachments && typeof itm.attachments === 'string') {
+          let attachments: ChatAttachmentsInterface = JSON.parse(itm.attachments);
+          findFile(attachments).then((res) => {
+            attachments = res;
+          });
+          itm.attachments = attachments;
+        }
+        return itm;
+      });
       // v-model绑定的这个变量不要在分页请求结束中自己赋值！！！
-      zPagingRef.value.complete(result.reverse());
+      zPagingRef.value.complete(res.reverse());
       pageParams.pageNum += 1;
     } else {
       zPagingRef.value.complete(false);
@@ -289,19 +340,31 @@ const queryChatMsg = async (channelId: string, pageNum: number, pageSize: number
   });
 };
 
-// 加载数据
-const scroll = async () => {
-  // console.log('加载数据');
-};
-// 滚动到顶部
-const scrollTop = async () => {
-  console.log('滚动到顶部');
-  pageParams.pageNum += 1;
-  queryChatMsg(channelInfo.channelId, pageParams.pageNum, pageParams.pageSize);
-};
-// 滚动到底部
-const scrollBottom = async () => {
-  console.log('滚动到底部');
+/**
+ * 获取文件展示类型
+ * @param attachments 附件
+ */
+const findFile = async (attachments: ChatAttachmentsInterface) => {
+  // 地址转换
+  attachments.path = CommonUtil.pathFmt(attachments.path);
+  // 图片
+  if (IMAGE_TYPE_CONST.indexOf(attachments.type) !== -1) {
+    attachments.fileType = 'image';
+  }
+  // 音频
+  if (MEDIA_TYPE_CONST.indexOf(attachments.type) !== -1) {
+    attachments.fileType = 'audio';
+  }
+  // 文本
+  if (TEXT_TYPE_CONST.indexOf(attachments.type) !== -1) {
+    // 获取文本内容
+    await getFileData(attachments.path).then((result) => {
+      attachments.fileText = result as string;
+    });
+    attachments.fileType = 'text';
+  }
+  // console.log('attachments', attachments);
+  return attachments;
 };
 </script>
 

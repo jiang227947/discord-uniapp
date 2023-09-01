@@ -1,3 +1,5 @@
+import { UserRoleEnum } from '@/shared/enum/user.enum';
+
 /**
  * 提示方法
  * @param {String} title 提示文字
@@ -32,6 +34,25 @@ export function getStorageSync(key: string) {
 }
 
 /**
+ * 获取用户ID
+ */
+export function getUserId(): number {
+  const userInfo = getStorageSync('userInfo');
+  return userInfo.id;
+}
+
+/**
+ * 获取权限ID
+ */
+export function getRoleId(): UserRoleEnum {
+  const userInfo = getStorageSync('userInfo');
+  if (userInfo && userInfo.role) {
+    return userInfo.role;
+  }
+  return UserRoleEnum.general;
+}
+
+/**
  * 删除缓存
  * @param {String} key 键名
  */
@@ -55,7 +76,8 @@ export function clearStorageSync() {
  **/
 export function useRouter(url: any, params: any = {}, type: string | any = 'navigateTo') {
   try {
-    if (Object.keys(params).length) url = `${url}?data=${encodeURIComponent(JSON.stringify(params))}`;
+    if (Object.keys(params).length)
+      url = `${url}?data=${encodeURIComponent(JSON.stringify(params))}`;
     if (type === 'navigateBack') {
       uni[type]({ delta: url });
     } else {
@@ -94,7 +116,10 @@ export function saveImage(filePath: string) {
       toast('图片保存成功', 'success');
     },
     fail: (err: any) => {
-      if (err.errMsg === 'saveImageToPhotosAlbum:fail:auth denied' || err.errMsg === 'saveImageToPhotosAlbum:fail auth deny') {
+      if (
+        err.errMsg === 'saveImageToPhotosAlbum:fail:auth denied' ||
+        err.errMsg === 'saveImageToPhotosAlbum:fail auth deny'
+      ) {
         uni.showModal({
           title: '提示',
           content: '需要您授权保存相册',

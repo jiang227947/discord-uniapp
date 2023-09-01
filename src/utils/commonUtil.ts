@@ -1,4 +1,13 @@
-import { IMAGE_TYPE_CONST, MEDIA_TYPE_CONST, OFFICE_TYPE_CONST, OTHER_TYPE_CONST, SIZE_10MB, SIZE_2MB, SIZE_30MB, TEXT_TYPE_CONST } from '@/shared/const/commou.const';
+import {
+  IMAGE_TYPE_CONST,
+  MEDIA_TYPE_CONST,
+  OFFICE_TYPE_CONST,
+  OTHER_TYPE_CONST,
+  SIZE_10MB,
+  SIZE_2MB,
+  SIZE_30MB,
+  TEXT_TYPE_CONST,
+} from '@/shared/const/commou.const';
 import { FileTypeEnum } from '@/shared/enum/file.enum';
 
 /**
@@ -25,6 +34,20 @@ export class CommonUtil {
   }
 
   /**
+   * 地址转换
+   * @param url 原地址
+   * @returns 地址
+   */
+  static pathFmt(url: string): string {
+    if (url && url.indexOf('http' || 'https') !== -1) {
+      return url;
+    } else if (url !== null && url !== undefined) {
+      return `https://www.evziyi.top${url}`;
+    } else {
+      return url;
+    }
+  }
+  /**
    * 时间格式化
    * param fmt
    * param date
@@ -45,7 +68,10 @@ export class CommonUtil {
     }
     for (const k in o) {
       if (new RegExp('(' + k + ')').test(fmt)) {
-        fmt = fmt.replace(RegExp.$1, RegExp.$1.length === 1 ? o[k] : ('00' + o[k]).substr(('' + o[k]).length));
+        fmt = fmt.replace(
+          RegExp.$1,
+          RegExp.$1.length === 1 ? o[k] : ('00' + o[k]).substr(('' + o[k]).length)
+        );
       }
     }
     return fmt;
@@ -129,7 +155,8 @@ export class CommonUtil {
       // 遍历obj,并且判断是obj的属性才拷贝
       if (obj.hasOwnProperty(key)) {
         // 判断属性值的类型，如果是对象递归调用深拷贝
-        newObj[key] = typeof obj[key] === 'object' && obj[key] !== null ? this.deepCopy(obj[key]) : obj[key];
+        newObj[key] =
+          typeof obj[key] === 'object' && obj[key] !== null ? this.deepCopy(obj[key]) : obj[key];
       }
     }
     return newObj;
@@ -142,7 +169,13 @@ export class CommonUtil {
    */
   static fileType(fileType: string, type?: FileTypeEnum[]): boolean {
     // 可上传的类型
-    let FILE_TYPE_CONST = [...IMAGE_TYPE_CONST, ...MEDIA_TYPE_CONST, ...TEXT_TYPE_CONST, ...OFFICE_TYPE_CONST, ...OTHER_TYPE_CONST];
+    let FILE_TYPE_CONST = [
+      ...IMAGE_TYPE_CONST,
+      ...MEDIA_TYPE_CONST,
+      ...TEXT_TYPE_CONST,
+      ...OFFICE_TYPE_CONST,
+      ...OTHER_TYPE_CONST,
+    ];
     if (type) {
       // 清空
       FILE_TYPE_CONST = [];
@@ -188,7 +221,10 @@ export class CommonUtil {
       // 限制其他大小
       size = SIZE_30MB;
       msg = '30MB';
-    } else if (fileType.indexOf(FileTypeEnum.image) !== -1 || fileType.indexOf(FileTypeEnum.office) !== -1) {
+    } else if (
+      fileType.indexOf(FileTypeEnum.image) !== -1 ||
+      fileType.indexOf(FileTypeEnum.office) !== -1
+    ) {
       // 限制图片 文档大小
       size = SIZE_10MB;
       msg = '10MB';

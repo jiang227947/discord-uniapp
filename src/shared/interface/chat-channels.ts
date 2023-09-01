@@ -108,7 +108,7 @@ export interface ChatChannelSystemStatesUserInterface {
 export interface ChatMessagesInterface {
   id: string;
   // 附件
-  attachments: ChatAttachmentsInterface | string;
+  attachments: ChatAttachmentsInterface;
   // 作者
   author: ChatSendAuthorInterface;
   // 频道id
@@ -300,6 +300,8 @@ export interface ChatAttachmentsInterface {
   fileType: string;
   // 时间
   date: number;
+  // 文本内容
+  fileText?: string;
 }
 
 /**
